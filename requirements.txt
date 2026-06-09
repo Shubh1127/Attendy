@@ -1,0 +1,7 @@
+#utilities
+numpy
+pandas
+
+#face recognition
+scikit-learn
+dlib-bin
