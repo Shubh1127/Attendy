@@ -47,15 +47,15 @@ def style_base_layout():
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 
                 
-         /* Hide Top Bar of streamlit */
+         /* Hide Top Bar of streamlit except header (keeps rerun button visible) */
                 
-            #MainMenu, footer, header {
+            #MainMenu, footer {
                 visibility: hidden;
             }
                 
-            .block-container {
-                padding-top:1.5rem !important;    
-            }
+            # .block-container {
+            #     padding-top:1.5rem !important;    
+            # }
 
             h1 {
                 font-family: 'Climate Crisis', sans-serif !important;
@@ -63,6 +63,7 @@ def style_base_layout():
                 line-height:1.1 1important;
                 margin-bottom:0rem !important;
             }
+            h1 { color: #000000 !important; }
                 
 
             h2 {
