@@ -84,6 +84,51 @@ def style_base_layout():
             h3, h4, p {
                   font-family: 'Inter', sans-serif !important;
             }   
+
+            div[data-testid="stWidgetLabel"],
+            div[data-testid="stWidgetLabel"] p,
+            label {
+                color: #000000 !important;
+            }
+
+            div[data-baseweb="input"] {
+                background-color: #FFFFFF !important;
+                border-radius: 1rem !important;
+                border: 1px solid #FFFFFF !important;
+            }
+
+            div[data-baseweb="input"] input {
+                background-color: #FFFFFF !important;
+                color: #000000 !important;
+                caret-color: #000000 !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            div[data-baseweb="input"]:focus-within {
+                border-color: #FFFFFF !important;
+                box-shadow: none !important;
+            }
+
+            div[data-baseweb="input"] button {
+                background-color: #FFFFFF !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            div[data-baseweb="input"] button:hover,
+            div[data-baseweb="input"] button:focus,
+            div[data-baseweb="input"] button:active {
+                background-color: #FFFFFF !important;
+                box-shadow: none !important;
+            }
+
+            div[data-baseweb="input"] button svg {
+                fill: #000000 !important;
+            }
+            div[data-baseweb="input"] input::placeholder {
+                color: #6B7280 !important;
+            }
                 
 
             button{
