@@ -9,11 +9,18 @@ def style_background_home():
 
                 .stApp {
                     background: #5865F2 !important;
+                    height: 100vh !important;
+                    overflow: hidden !important;
+                }
+
+                .block-container {
+                    padding-top: 1rem !important;
+                    padding-bottom: 0rem !important;
                 }
 
                 .stApp div[data-testid="stColumn"]{
                     background-color:#E0E3FF !important;
-                    padding:2.5rem !important;
+                    padding:1.5rem !important;
                     border-radius: 5rem !important;
                     }
         </style>  
@@ -43,8 +50,9 @@ def style_base_layout():
 # asdasd
     st.markdown("""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Climate+Crisis:YEAR@1979&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
 
                 
          /* Hide Top Bar of streamlit except header (keeps rerun button visible) */
@@ -58,24 +66,24 @@ def style_base_layout():
             # }
 
             h1 {
-                font-family: 'Climate Crisis', sans-serif !important;
+                font-family: 'Space Grotesk', sans-serif !important;
                 font-size: 3.5rem !important;
-                line-height:1.1 1important;
+                line-height: 1.1 !important;
                 margin-bottom:0rem !important;
             }
             h1 { color: #000000 !important; }
                 
 
             h2 {
-                font-family: 'Climate Crisis', sans-serif !important;
+                font-family: 'Space Grotesk', sans-serif !important;
                 font-size: 2rem !important;
                 line-height:0.9 !important;
                 margin-bottom:0rem !important;
             }
                 
             h3, h4, p {
-                font-family: 'Outfit', sans-serif;    
-            }
+                  font-family: 'Inter', sans-serif !important;
+            }   
                 
 
             button{
