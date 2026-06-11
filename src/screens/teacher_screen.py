@@ -78,19 +78,7 @@ def teacher_screen():
 
 
 def teacher_Screen_login():
-    c1,c2=st.columns(2,vertical_alignment='center',gap='xxlarge')
-    with c1:
-
-        header_dashboard()  
-    with c2:
-           if st.button('Go Back', type='secondary', icon=':material/arrow_back:',shortcut='control+Backspace', icon_position='left',key='loginbackbtn'):
-                st.session_state['login_type']=None
-                st.rerun()
     
-    st.markdown("<h1 style='color:#000000; text-align:center'>Login Using Password</h1>", unsafe_allow_html=True)
-
-    st.space()
-    st.space()
 
     
     teacher_username=st.text_input("Enter you username",placeholder="Username")
@@ -108,9 +96,7 @@ def teacher_Screen_login():
 
     with btn1:
         if st.button('Login',icon=':material/passkey:',shortcut='control+enter',width='stretch'):
-            teacher_data = teacher_login(teacher_username,teacher_password)
-            if teacher_data:
-                st.session_state['teacher_data'] = teacher_data
+            if login_teacher(teacher_username,teacher_password):
                 show_top_popup("Login successful", "success")
                 st.rerun()
             else:
