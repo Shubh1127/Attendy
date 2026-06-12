@@ -2,7 +2,7 @@ import time
 
 import streamlit as st
 
-from database.db import get_all_students
+from src.database.db import get_all_students
 from src.components.footer_home import footer_dashboard
 from src.components.header import header_dashboard
 from src.ui.base_layout import style_background_dashboard, style_base_layout
@@ -10,7 +10,7 @@ from PIL import Image
 import numpy as np
 from src.pipelines.face_pipeline import predict_attendance
 from src.database.db import create_student
-from src.pipelines.face_pipeline import get_face_embedding, train_classifier
+from src.pipelines.face_pipeline import get_face_embeddings, train_classifier
 from src.pipelines.voice_pipeline import get_voice_embedding
 
 def student_dashboard():
@@ -87,13 +87,18 @@ def student_screen():
                 if new_name:
                     with st.spinner('Creating profile..'):
                         img = np.array(Image.open(photo_source))
-                        encodings= get_face_embedding(img)
+                        encodings = get_face_embeddings(img)
                         if encodings:
                             face_emb = encodings[0].tolist()
 
                             voice_emb = None
                             if audio_data:
-                                voice_emb = get_voice_embedding(audio_data.read())
+                                voice_bytes = audio_data.getvalue()
+                                if voice_bytes:
+                                    voice_emb = get_voice_embedding(voice_bytes)
+
+                            if audio_data and voice_emb is None:
+                                st.warning('Voice enrollment could not be processed, but the profile will still be created with face data.')
 
                             response_data = create_student(new_name, face_embedding=face_emb, voice_embedding=voice_emb)
 
