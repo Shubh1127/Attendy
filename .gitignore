@@ -13,3 +13,4 @@ _pycache
 venv/
 
 .streamlit/
+pretrained_models/
