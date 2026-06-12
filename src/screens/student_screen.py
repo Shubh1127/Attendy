@@ -63,7 +63,7 @@ def student_screen():
                               st.session_state.student_data=student
                               st.toast('Welcome, {}!'.format(student['name']), icon='👋')
                               time.sleep(1)
-                              st.rerun
+                              st.rerun()
                     else:
                          st.info('Face not recognized. Please try again or contact your teacher for assistance.')
                          show_registration=True
