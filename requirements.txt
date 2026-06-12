@@ -18,6 +18,7 @@ pillow
 
 streamlit
 
-resemblyzer
+torch
+speechbrain
 
 librosa

@@ -1,24 +1,35 @@
 
-from resemblyzer import VoiceEncoder, preprocess_wav
-import numpy as np 
 import io
+
 import librosa
+import numpy as np
 import streamlit as st
+import torch
+from speechbrain.inference.speaker import EncoderClassifier
 
 
 @st.cache_resource
 def load_voice_encoder():
-    return VoiceEncoder()
+    return EncoderClassifier.from_hparams(
+        source="speechbrain/spkrec-ecapa-voxceleb",
+        savedir="pretrained_models/spkrec-ecapa-voxceleb",
+    )
+
+
+def _get_speechbrain_embedding(audio_bytes):
+    encoder = load_voice_encoder()
+    audio, _ = librosa.load(io.BytesIO(audio_bytes), sr=16000)
+    wav = torch.tensor(audio, dtype=torch.float32).unsqueeze(0)
+    embedding = encoder.encode_batch(wav).squeeze(0).squeeze(0).detach().cpu().numpy()
+    norm = np.linalg.norm(embedding)
+    if norm == 0:
+        return None
+    return (embedding / norm).tolist()
 
 
 def get_voice_embedding(audio_bytes):
     try:
-        encoder = load_voice_encoder()
-
-        audio, sr = librosa.load(io.BytesIO(audio_bytes), sr=16000)
-        wav = preprocess_wav(audio)
-        embedding = encoder.embed_utterance(wav)
-        return embedding.tolist()
+        return _get_speechbrain_embedding(audio_bytes)
     except Exception as e:
         st.error('Voice recog error')
         return None
@@ -61,8 +72,13 @@ def process_bulk_audio(audio_bytes, candidates_dict, threshold=0.65):
             if (end-start) < sr * 0.5:
                 continue
             segment_audio = audio[start:end]
-            wav = preprocess_wav(segment_audio)
-            embedding = encoder.embed_utterance(wav)
+            wav = torch.tensor(segment_audio, dtype=torch.float32).unsqueeze(0)
+            embedding = encoder.encode_batch(wav).squeeze(0).squeeze(0).detach().cpu().numpy()
+
+            norm = np.linalg.norm(embedding)
+            if norm == 0:
+                continue
+            embedding = embedding / norm
 
 
             sid, score = identify_speaker(embedding, candidates_dict, threshold)
