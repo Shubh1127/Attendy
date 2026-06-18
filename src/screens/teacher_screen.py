@@ -21,6 +21,23 @@ from datetime import datetime
 
 from src.components.dialog_add_photos import add_photos_dialog
 
+
+def apply_header_text_black():
+    st.markdown(
+        """
+        <style>
+            h1, h2, h3, h4, h5, h6,
+            [data-testid="stHeader"] h1,
+            [data-testid="stHeader"] h2,
+            [data-testid="stHeader"] h3,
+            [data-testid="stHeading"] {
+                color: #000000 !important;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
 def show_top_popup(message, kind="success", duration=1.5):
     bg_color = "#16A34A" if kind == "success" else "#DC2626"
     popup = st.empty()
@@ -78,6 +95,7 @@ def teacher_screen():
     
     style_background_dashboard()
     style_base_layout()
+    apply_header_text_black()
 
     if 'teacher_data' in st.session_state:
         teacher_dashboard()
