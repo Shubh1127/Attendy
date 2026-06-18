@@ -89,7 +89,14 @@ def get_student_attendance(student_id):
 
 
 def create_attendance(logs):
-    response = supabase.table('attendance_logs').insert(logs).execute()
+    normalized_logs = []
+    for log in logs:
+        entry = dict(log)
+        if 'timestamp' in entry and 'created_at' not in entry:
+            entry['created_at'] = entry.pop('timestamp')
+        normalized_logs.append(entry)
+
+    response = supabase.table('attendance_logs').insert(normalized_logs).execute()
     return response.data
 
 def get_attendance_for_teacher(teacher_id):

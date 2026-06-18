@@ -20,15 +20,15 @@ def voice_attendance_dialog(selected_subject_id):
 
     if st.button('Analyze Audio', width='stretch', type='primary'):
         with st.spinner('Prcessing Audio data'):
-            enrolled_res = supabase.table('subject_students').select("*, students(*)").eq('subject_id',selected_subject_id ).execute()
+            enrolled_res = supabase.table('subjects_student').select("*, student(*)").eq('subject_id',selected_subject_id ).execute()
             enrolled_students = enrolled_res.data
 
             if not enrolled_students:
                 st.warning('No students enrolled in this course')
                 return
             candidates_dict = {
-                s['students']['student_id'] : s['students']['voice_embedding'] 
-                for s in enrolled_students if s['students'].get('voice_embedding')
+                s['student']['student_id'] : s['student']['voice_embedding'] 
+                for s in enrolled_students if s['student'].get('voice_embedding')
             }
 
             if not candidates_dict:
@@ -45,7 +45,7 @@ def voice_attendance_dialog(selected_subject_id):
 
 
             for node in enrolled_students:
-                student = node['students']
+                student = node['student']
                 score  = detected_scores.get(student['student_id'], 0.0)
                 is_present= bool(score>0)
 

@@ -7,19 +7,19 @@ from src.ui.base_layout import style_base_layout, style_background_home,style_ba
 from src.components.header import header_dashboard
 from src.components.dialog_create_subject import create_subject_dialog
 from src.components.dialog_voice_attendance import voice_attendance_dialog
-from src.database.db import get_teacher_subjects
+from src.database.db import get_teacher_subjects,get_attendance_for_teacher
 from src.components.dialog_attendance_results import attendance_result_dialog
 from src.components.subject_card import subject_card
 from src.components.dialog_share_subject import share_subject_dialog
 
 from src.pipelines.face_pipeline import predict_attendance
 
-import supabase
 import pandas as pd
 import numpy as np
 from datetime import datetime
 
 from src.components.dialog_add_photos import add_photos_dialog
+from src.database.config import supabase
 
 
 def apply_header_text_black():
@@ -319,7 +319,7 @@ def teacher_tab_take_attendance():
 
                             all_detected_ids.setdefault(student_id, []).append(f"Photo {idx+1}")
 
-                enrolled_res = supabase.table('subject_students').select("*, students(*)").eq('subject_id',selected_subject_id ).execute()
+                enrolled_res = supabase.table('subjects_student').select("*, student(*)").eq('subject_id',selected_subject_id ).execute()
                 enrolled_students = enrolled_res.data
 
                 if not enrolled_students:
@@ -332,7 +332,7 @@ def teacher_tab_take_attendance():
 
 
                     for node in enrolled_students:
-                        student = node['students']
+                        student = node['student']
                         sources = all_detected_ids.get(int(student['student_id']), [])
                         is_present= len(sources) > 0
 
@@ -394,5 +394,49 @@ def teacher_tab_manage_subjects():
 
 
 def teacher_tab_attendance_records():
-        st.info("Attendance records will be displayed here once you start taking attendance for your subjects.")
-    # st.dataframe(display_df, width='stretch', hide_index=True)
+    st.header('Attendance Records')
+
+    teacher_id = st.session_state.teacher_data['teacher_id']
+
+    records = get_attendance_for_teacher(teacher_id)
+
+    if not records:
+        return
+    
+    data = []
+
+    for r in records:
+        ts = r.get('created_at') or r.get('timestamp')
+
+        data.append({
+            "ts_group": ts.split(".")[0] if ts else None,
+            "Time": datetime.fromisoformat(ts).strftime("%Y-%m-%d %I:%M %p") if ts else "N'A",
+            "Subject": r['subjects']['name'],
+            "Subject Code":r['subjects']['subject_code'],
+            "is_present": bool(r.get('is_present', False))
+        })
+
+
+    df = pd.DataFrame(data)
+
+
+
+    summary = (
+        df.groupby(['ts_group', 'Time', 'Subject', 'Subject Code'])
+        .agg(
+            Present_Count = ('is_present', 'sum'),
+            Total_Count =('is_present', 'count')
+        ).reset_index()
+
+    )
+
+    summary['Attendance Stats'] = (
+        "✅ " + summary['Present_Count'].astype(str) + " /"
+        + summary['Total_Count'].astype(str) + ' Students'
+    )
+
+    display_df = ( summary.sort_values(by='ts_group' ,ascending=False)
+                  [['Time', 'Subject', 'Subject Code', 'Attendance Stats']]
+                  )
+    
+    st.dataframe(display_df, width='stretch', hide_index=True)
