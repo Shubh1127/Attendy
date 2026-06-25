@@ -1,12 +1,14 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Header
 from PIL import Image
 from io import BytesIO
 import numpy as np
 
-from auth import create_access_token
+from core.auth import create_access_token
 from database.config import supabase
 from pipelines.face_pipeline import get_face_embeddings
 from pipelines.voice_pipeline import get_voice_embedding
+
+from core.auth import get_user_from_token
 
 router = APIRouter()
 
@@ -15,7 +17,7 @@ router = APIRouter()
 async def verify_student(
     enrollmentNumber: str = Form(...),
     faceImage: UploadFile = File(...),
-    voiceAudio: UploadFile = File(...)
+    voiceAudio: UploadFile | None = File(default=None)
 ):
 
     # -------------------------------
@@ -104,8 +106,15 @@ async def verify_student(
         }
 
     # =====================================================
-    # REGISTRATION FLOW
-    # =====================================================
+# REGISTRATION FLOW
+# =====================================================
+
+    if voiceAudio is None:
+         return {
+            "action": "voice_required",
+            "matched": False,
+            "message": "Voice enrollment required."
+        }
 
     audio_bytes = await voiceAudio.read()
 
@@ -148,4 +157,31 @@ async def verify_student(
         "token": token,
         "student_id": student["id"],
         "student_name": student["name"]
+    }
+
+
+@router.get("/me")
+async def get_me(
+    authorization: str = Header(...)
+):
+
+    token = authorization.replace(
+        "Bearer ",
+        ""
+    )
+
+    user = get_user_from_token(token)
+
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+
+    return {
+        "id": user["id"],
+        "role": user["role"],
+        "name": user["name"],
+        # "rollNumber": user.get("rollNumber"),
+        # "department": user.get("department")
     }
