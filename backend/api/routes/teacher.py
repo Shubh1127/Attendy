@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from core.auth import create_access_token
-from core.schemas import TeacherLoginRequest
+from core.schemas import TeacherLoginRequest, TeacherLoginResponse
 from database.db import teacher_login,create_teacher
 
 router = APIRouter()
@@ -14,7 +14,7 @@ async def register_teacher(
 ):
 
     teacher = create_teacher(
-        payload.username,
+        payload.email,
         payload.password,
         payload.name
     )
@@ -26,7 +26,7 @@ async def register_teacher(
         )
 
     token = create_access_token(
-        user_id=teacher["teacher_id"],
+        user_id=int(teacher["teacher_id"]),
         role="teacher",
         name=teacher["name"]
     )
@@ -37,25 +37,26 @@ async def register_teacher(
         "teacher": {
             "id": teacher["teacher_id"],
             "name": teacher["name"],
-            "username": teacher["username"]
+            "email": teacher["email"],
+            "role": "teacher"
         }
     }
 
 
 @router.post("/teacher/login")
 async def login_teacher(
-    payload: TeacherLoginRequest
+    payload: TeacherLoginResponse
 ):
 
     teacher = teacher_login(
-        payload.username,
+        payload.email,
         payload.password
     )
 
     if not teacher:
         raise HTTPException(
             status_code=401,
-            detail="Invalid username or password"
+            detail="Invalid email or password"
         )
 
     token = create_access_token(
@@ -70,6 +71,7 @@ async def login_teacher(
         "teacher": {
             "id": teacher["teacher_id"],
             "name": teacher["name"],
-            "username": teacher["username"]
+            "email": teacher["email"],
+            "role": "teacher"
         }
     }

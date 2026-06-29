@@ -16,16 +16,55 @@ def check_teacher_exists(username):
     return len(response.data) > 0 
 
 
-
-def create_teacher(username, password, name):
-
-    data = { "username" : username, "password": hash_pass(password), "name": name}
-    response = supabase.table("teacher").insert(data).execute()
-    return response.data
+from postgrest.exceptions import APIError
 
 
-def teacher_login(username, password):
-    response = supabase.table("teacher").select("*").eq("username", username).execute()
+def create_teacher(
+    name: str,
+    password: str,
+    email: str
+):
+
+    # -------------------------
+    # CHECK EMAIL EXISTS
+    # -------------------------
+
+    existing = (
+        supabase
+        .table("teacher")
+        .select("teacher_id")
+        .eq("email", email)
+        .execute()
+    )
+
+    if existing.data:
+        return None
+
+    # -------------------------
+    # INSERT TEACHER
+    # -------------------------
+
+    try:
+
+        response = (
+            supabase
+            .table("teacher")
+            .insert({
+                "name": name,
+                "email": email,
+                "password": hash_pass(password)
+            })
+            .execute()
+        )
+
+        return response.data[0]
+
+    except APIError:
+
+        return None
+
+def teacher_login(email, password):
+    response = supabase.table("teacher").select("*").eq("email", email).execute()
     if response.data:
         teacher = response.data[0]
         if check_pass(password, teacher['password']):

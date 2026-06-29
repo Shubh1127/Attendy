@@ -30,3 +30,7 @@ bcrypt
 
 pydantic
 pydantic-settings
+
+
+pdfplumber
+pandas

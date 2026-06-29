@@ -72,5 +72,10 @@ class UpdateAttendanceSessionRequest(BaseModel):
 
 class TeacherLoginRequest(BaseModel):
     name: str
-    username: str
+    email: str
+    password: str
+
+
+class TeacherLoginResponse(BaseModel):
+    email: str
     password: str

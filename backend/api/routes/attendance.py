@@ -1,3 +1,5 @@
+import token
+
 from fastapi import APIRouter, Header, HTTPException,Query
 
 from core.auth import get_user_from_token
@@ -503,3 +505,94 @@ async def get_attendance_entries(
         status_code=403,
         detail="Invalid role"
     )
+
+@router.get("/student/attendance")
+async def get_student_attendance(
+    authorization: str = Header(...)
+):
+
+    token = authorization.replace(
+        "Bearer ",
+        ""
+    )
+
+    student = get_user_from_token(token)
+
+    if not student:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+
+    if student["role"] != "student":
+        raise HTTPException(
+            status_code=403,
+            detail="Students only"
+        )
+
+    response = (
+        supabase
+        .table("attendance_logs")
+        .select("""
+            subject_id,
+            status,
+            subjects(
+                subject_code,
+                name
+            )
+        """)
+        .eq("student_id", student["id"])
+        .execute()
+    )
+
+    summary = {}
+
+    for row in response.data:
+
+        subject_id = row["subject_id"]
+
+        if subject_id not in summary:
+
+            summary[subject_id] = {
+                "subject_id": subject_id,
+                "subject_name": row["subjects"]["name"],
+                "subject_code": row["subjects"]["subject_code"],
+                "total": 0,
+                "present": 0,
+                "late": 0,
+                "absent": 0
+            }
+
+        summary[subject_id]["total"] += 1
+
+        if row["status"] == "present":
+            summary[subject_id]["present"] += 1
+
+        elif row["status"] == "late":
+            summary[subject_id]["late"] += 1
+
+        elif row["status"] == "absent":
+            summary[subject_id]["absent"] += 1
+
+    attendance = []
+
+    for item in summary.values():
+
+        item["percentage"] = round(
+            (
+                item["present"] +
+                item["late"]
+            )
+            /
+            item["total"]
+            *
+            100,
+            2
+        )
+
+        attendance.append(item)
+
+    return {
+        "success": True,
+        "attendance": attendance
+    }
