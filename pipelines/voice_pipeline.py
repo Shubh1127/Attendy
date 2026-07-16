@@ -3,12 +3,12 @@ import io
 
 import librosa
 import numpy as np
-import streamlit as st
+from functools import lru_cache
 import torch
 import soundfile as sf
 
 
-@st.cache_resource
+@lru_cache(maxsize=1)
 def load_voice_encoder():
     from speechbrain.inference.speaker import EncoderClassifier
     from speechbrain.utils.fetching import LocalStrategy
@@ -51,7 +51,7 @@ def get_voice_embedding(audio_bytes):
     try:
         return _get_speechbrain_embedding(audio_bytes)
     except Exception as e:
-        st.error('Voice recog error')
+        print('Voice recog error')
         return None
     
 
@@ -110,5 +110,5 @@ def process_bulk_audio(audio_bytes, candidates_dict, threshold=0.65):
 
         return identified_results
     except Exception as e:
-        st.error('Bulk process error')
+        print('Bulk process error')
         return {}
