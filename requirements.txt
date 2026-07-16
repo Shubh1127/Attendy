@@ -17,7 +17,7 @@ numpy==2.3.2
 pandas==2.3.1
 pdfplumber==0.11.7
 
-dlib-bin==20.0.0
+dlib==20.0.0
 scikit-learn==1.7.1
 
 librosa==0.11.0
