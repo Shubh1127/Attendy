@@ -38,9 +38,14 @@ async def log_requests(request: Request, call_next):
     logger.info("Client : %s", request.client.host if request.client else "Unknown")
 
     try:
-        body = await request.body()
-        if body:
-            logger.info("Body   : %s", body.decode(errors="ignore"))
+        content_type = request.headers.get("content-type", "")
+
+        if content_type.startswith("multipart/form-data"):
+               logger.info("Body   : <multipart form-data omitted>")
+        else:
+               body = await request.body()
+               if body:
+                   logger.info("Body   : %s", body.decode(errors="ignore"))
     except Exception:
         logger.info("Body   : <Unable to read>")
 

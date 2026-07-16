@@ -61,6 +61,12 @@ async def verify_student(
     # -------------------------------
 
     image_bytes = await faceImage.read()
+    print("Image bytes:", len(image_bytes))
+
+    image = Image.open(BytesIO(image_bytes))
+    print("PIL image:", image.mode, image.size)
+
+    image = image.convert("RGB")
 
     image_np = np.array(
         Image.open(
@@ -68,7 +74,13 @@ async def verify_student(
         ).convert("RGB")
     )
 
+    print("Shape:", image_np.shape)
+    print("Dtype:", image_np.dtype)
+
+    print("Calling get_face_embeddings...") 
     encodings = get_face_embeddings(image_np)
+
+    print("Returned from get_face_embeddings")
 
     if len(encodings) == 0:
         raise HTTPException(
