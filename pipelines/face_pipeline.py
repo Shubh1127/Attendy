@@ -4,12 +4,12 @@ import dlib
 import numpy as np
 import face_recognition_models
 from sklearn.svm import SVC
-import streamlit as st
+from functools import lru_cache
 
 from database.db import get_all_students
 
 
-@st.cache_resource
+@lru_cache(maxsize=1)
 def load_dlib_models():
     detector = dlib.get_frontal_face_detector() 
 
@@ -37,7 +37,7 @@ def get_face_embeddings(image_np):
         encodings.append(np.array(face_descriptor))
     return encodings
 
-@st.cache_resource
+@lru_cache(maxsize=1)
 def get_trained_model():
     X = []
     y = []
@@ -68,7 +68,7 @@ def get_trained_model():
 
 
 def train_classifier():
-    st.cache_resource.clear()
+    get_trained_model.cache_clear()
     model_data = get_trained_model()
     return bool(model_data)
 
